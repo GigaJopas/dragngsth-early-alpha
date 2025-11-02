@@ -21,6 +21,7 @@ runaway_btn = pygame.Rect(60, 6, 20, 20)
 follow_btn = pygame.Rect(85, 6, 20, 20)
 random_btn = pygame.Rect(110, 6, 20, 20)
 rotate_btn = pygame.Rect(240, 6, 20, 20)
+slidin_btn = pygame.Rect(314, 6, 20, 20)
 
 switchole = pygame.Rect(265, 6, 44, 20)
 switcher1 = pygame.Rect(265, 6, 22, 20)
@@ -45,7 +46,10 @@ score_text = font1.render(str(SCORE), True, (255, 255, 255))
 cloning = False
 runaway = False
 followin = True
+slidin = False
+
 randomin = False
+
 rotating = False
 
 guyval = True
@@ -70,11 +74,20 @@ cleanin = False
 
 randval = 4
 
-rotate = pygame.USEREVENT
+rotate = pygame.USEREVENT + 0
 pygame.time.set_timer(rotate, 9)
 def rotatef():
 	pass
 angle = 0
+
+movement = pygame.USEREVENT + 1
+slide_speed = 35
+
+pygame.time.set_timer(movement, slide_speed)
+
+mouse_move = pygame.mouse.get_rel()
+mouse_x_move = mouse_move[0]
+mouse_y_move = mouse_move[1]
 
 class Guys(pygame.sprite.Sprite):
 	def __init__(self, x, y):
@@ -193,6 +206,14 @@ class Guys(pygame.sprite.Sprite):
 				moves = [right, left, down, up]
 				move = choice(moves)
 				move()
+
+			if slidin == True:
+				self.rect.x = eval(f"{self.rect.x} + {mouse_x_move}")
+				self.rect.y = eval(f"{self.rect.y} + {mouse_y_move}")
+				if mouse_x_move != 0 or mouse_y_move != 0:
+					self.moving = True
+				else:
+					self.moving = False
 
 			if self.moving:
 				self.step_value += 1
@@ -342,8 +363,19 @@ while runnin:
 					if guyval == False:
 						guyval = True
 
+				if slidin_btn.collidepoint(event.pos):
+					if slidin == True:
+						slidin = False
+					else:
+						slidin = True
+
 		if event.type == rotate:
 			rotatef()
+
+		if event.type == movement:
+			mouse_move = pygame.mouse.get_rel()
+			mouse_x_move = mouse_move[0]
+			mouse_y_move = mouse_move[1]
 
 	if mouse_helders[0]:
 		try:
@@ -359,10 +391,13 @@ while runnin:
 
 	if sliderer.x <= 162:
 		randval = 4
+		slide_speed = 20
 	if sliderer.x >= 188:
 		randval = 13
+		slide_speed = 25
 	if sliderer.x in range(163, 187):
 		randval = 7
+		slide_speed = 31
 
 	pygame.draw.rect(screen, greenish, inside)
 
@@ -394,6 +429,11 @@ while runnin:
 		pygame.draw.rect(screen, red, rotate_btn)
 	else:
 		pygame.draw.rect(screen, green, rotate_btn)
+
+	if slidin == False:
+		pygame.draw.rect(screen, red, slidin_btn)
+	else:
+		pygame.draw.rect(screen, green, slidin_btn)
 
 	pygame.draw.rect(screen, greenish, switchole)
 	if guyval == True:
